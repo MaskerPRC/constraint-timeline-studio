@@ -694,17 +694,25 @@ class TimeRangeControlAdvanced {
         
         if (!itemA) return null;
         
+        // 辅助函数：安全地格式化时间
+        const formatTime = (dateObj) => {
+            if (!dateObj || !(dateObj instanceof Date)) {
+                return 'Invalid Date';
+            }
+            return dateObj.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        };
+        
         const state = {
             itemA: {
-                start: itemA.start.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-                end: itemA.end.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                start: formatTime(itemA.start),
+                end: formatTime(itemA.end)
             }
         };
         
         if (itemB) {
             state.itemB = {
-                start: itemB.start.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-                end: itemB.end.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                start: formatTime(itemB.start),
+                end: formatTime(itemB.end)
             };
         }
         
@@ -716,6 +724,20 @@ class TimeRangeControlAdvanced {
         const itemB = this.items.get(constraint.itemB);
         
         if (!itemA) return false;
+        
+        // 检查itemA的日期对象有效性
+        if (!itemA.start || !itemA.end || !(itemA.start instanceof Date) || !(itemA.end instanceof Date)) {
+            console.warn('ItemA has invalid date objects:', itemA);
+            return false;
+        }
+        
+        // 如果需要itemB，也检查它的日期对象有效性
+        if (constraint.type !== 'fixed-duration' && itemB) {
+            if (!itemB.start || !itemB.end || !(itemB.start instanceof Date) || !(itemB.end instanceof Date)) {
+                console.warn('ItemB has invalid date objects:', itemB);
+                return false;
+            }
+        }
 
         switch (constraint.type) {
             case 'fixed-duration':
@@ -1448,7 +1470,24 @@ class TimeRangeControlAdvanced {
             this.createConstraint(data);
         }
 
-        this.processConstraints();
+        // 获取相关的事务项ID进行约束处理
+        const relatedItems = [data.transactionA];
+        if (data.transactionB) {
+            relatedItems.push(data.transactionB);
+        }
+        
+        // 确保所有相关事务项存在
+        const validItems = relatedItems.filter(itemId => {
+            const item = this.items.get(itemId);
+            return item && item.start && item.end;
+        });
+        
+        if (validItems.length > 0) {
+            this.processConstraints(validItems);
+        } else {
+            console.warn('No valid items found for constraint processing');
+        }
+        
         this.hideConstraintModal();
     }
 
