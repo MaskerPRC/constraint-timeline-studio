@@ -39,7 +39,14 @@ class TimeRangeControlAdvanced {
                     hour: 'ddd DD MMMM'
                 }
             },
-            locale: 'zh-CN'
+            locale: 'zh-CN',
+            locales: {
+                'zh-CN': {
+                    current: '当前时间',
+                    time: '时间',
+                    deleteSelected: '删除选中项'
+                }
+            }
         };
 
         // 约束系统
@@ -132,9 +139,9 @@ class TimeRangeControlAdvanced {
     setupTimelineEvents() {
         // 使用高频率的changed事件来模拟实时约束
         this.timeline.on('changed', (properties) => {
-            if (this.constraintSystem.isProcessing) return;
+            if (!this.constraintSystem || this.constraintSystem.isProcessing) return;
             
-            if (properties.items && properties.items.length > 0) {
+            if (properties && properties.items && Array.isArray(properties.items) && properties.items.length > 0) {
                 // 先快速应用实时约束
                 this.processConstraintsRealtime(properties.items);
                 // 然后完整处理所有约束
@@ -146,10 +153,10 @@ class TimeRangeControlAdvanced {
 
         // 监听数据变化，实现更实时的约束处理
         this.items.on('update', (event, properties) => {
-            if (this.constraintSystem.isProcessing) return;
+            if (!this.constraintSystem || this.constraintSystem.isProcessing) return;
             
             // 当数据更新时立即检查约束
-            if (properties.items && properties.items.length > 0) {
+            if (properties && properties.items && Array.isArray(properties.items) && properties.items.length > 0) {
                 clearTimeout(this.constraintTimeout);
                 this.constraintTimeout = setTimeout(() => {
                     this.processConstraintsRealtime(properties.items);
@@ -652,12 +659,24 @@ class TimeRangeControlAdvanced {
 
     // 更新项目状态记录
     updateItemStates() {
+        if (!this.items || !this.lastItemStates) {
+            console.warn('Items or lastItemStates not initialized');
+            return;
+        }
+        
         const items = this.items.get();
+        if (!items || !Array.isArray(items)) {
+            console.warn('No items to update states for');
+            return;
+        }
+        
         items.forEach(item => {
-            this.lastItemStates.set(item.id, {
-                start: item.start.getTime(),
-                end: item.end.getTime()
-            });
+            if (item && item.id && item.start && item.end) {
+                this.lastItemStates.set(item.id, {
+                    start: item.start.getTime(),
+                    end: item.end.getTime()
+                });
+            }
         });
     }
 
