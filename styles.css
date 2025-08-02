@@ -1,0 +1,858 @@
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto auto 1fr;
+    gap: 20px;
+    height: 100vh;
+}
+
+/* 头部样式 */
+.header {
+    grid-column: 1 / -1;
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+/* 控制面板样式 */
+.controls {
+    grid-column: 1 / -1;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.control-group {
+    display: flex;
+    gap: 10px;
+}
+
+.time-range-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.time-range-controls label {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.time-range-controls input,
+.time-range-controls select {
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* 主内容区域 */
+.main-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 时间轴包装器 */
+.timeline-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* vis-timeline 容器 */
+.timeline-container {
+    flex: 1;
+    position: relative;
+    background: #fafafa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin: 10px;
+}
+
+/* 时间轴控制栏 */
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.timeline-info {
+    margin-left: auto;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* vis-timeline 自定义样式 */
+.vis-timeline {
+    border: none !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.vis-panel.vis-background {
+    background: #ffffff !important;
+}
+
+.vis-panel.vis-center {
+    background: #fafafa !important;
+}
+
+.vis-labelset .vis-label {
+    background: #f8f9fa !important;
+    border-right: 1px solid #e9ecef !important;
+    color: #495057 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+.vis-foreground .vis-group {
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+.vis-time-axis .vis-text {
+    color: #495057 !important;
+    font-size: 12px !important;
+}
+
+.vis-time-axis .vis-grid.vis-minor {
+    border-left: 1px solid #e9ecef !important;
+}
+
+.vis-time-axis .vis-grid.vis-major {
+    border-left: 1px solid #dee2e6 !important;
+}
+
+.vis-current-time {
+    background-color: #e74c3c !important;
+    width: 2px !important;
+}
+
+/* vis-timeline 项目样式 */
+.vis-item {
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+/* 原hover样式已移至下方优化版本 */
+
+.vis-item.vis-selected {
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3) !important;
+    border: 2px solid #3498db !important;
+}
+
+.vis-item .vis-item-content {
+    padding: 8px 12px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}
+
+/* 拖拽时的样式已移至下方优化版本 */
+
+.vis-item.vis-drag-left,
+.vis-item.vis-drag-right {
+    cursor: ew-resize !important;
+}
+
+/* 右键上下文菜单 */
+.context-menu {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border: 1px solid #e9ecef;
+    min-width: 160px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.menu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item:hover {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item:before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* 颜色选择器覆盖层 */
+.color-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.color-picker-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+}
+
+.color-picker-content h4 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.color-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 3px solid transparent;
+    position: relative;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    border-color: rgba(52, 152, 219, 0.5);
+}
+
+.color-option:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.color-option:hover:after {
+    opacity: 1;
+}
+
+/* 事务列表项目选中样式 */
+.transaction-item.selected {
+    background-color: #e3f2fd;
+    border-left-color: #2196f3;
+}
+
+/* 修复vis-timeline悬停效果，避免抖动 */
+.vis-item {
+    pointer-events: auto !important;
+}
+
+/* 优化悬停效果的稳定性 */
+.vis-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    /* 移除所有位置变换，只保留阴影效果 */
+    z-index: 10 !important;
+}
+
+/* 确保过渡效果平滑但不会导致位置跳动 */
+.vis-item {
+    transition: box-shadow 0.15s ease, opacity 0.15s ease !important;
+    /* 覆盖之前的transition设置 */
+}
+
+/* 移除可能导致抖动的变换效果 */
+.vis-item.vis-drag-center {
+    opacity: 0.9 !important;
+    /* 移除旋转效果避免抖动 */
+    z-index: 1000 !important;
+}
+
+/* 约束状态动画 */
+.constraint-status.invalid {
+    animation: pulse-error 2s infinite;
+}
+
+@keyframes pulse-error {
+    0%, 100% { color: #e74c3c; opacity: 1; }
+    50% { color: #c0392b; opacity: 0.7; }
+}
+
+.constraint-status.valid {
+    color: #27ae60;
+}
+
+/* 改进的缩放和适应按钮 */
+.timeline-controls .btn {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.timeline-controls .btn:hover {
+    background: #f8f9fa;
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.timeline-controls .btn:active {
+    background: #e9ecef;
+    transform: translateY(1px);
+}
+
+/* 工具提示增强 */
+.vis-tooltip {
+    background: #2c3e50 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+}
+
+/* 时间轴标签组美化 */
+.timeline-group {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.timeline-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* 约束违规动画 */
+.vis-item.constraint-violation {
+    animation: shake-horizontal 0.6s ease-in-out;
+}
+
+@keyframes shake-horizontal {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+/* 深色模式下的时间轴样式 */
+@media (prefers-color-scheme: dark) {
+    .vis-panel.vis-background {
+        background: #2c3e50 !important;
+    }
+    
+    .vis-panel.vis-center {
+        background: #34495e !important;
+    }
+    
+    .vis-labelset .vis-label {
+        background: #2c3e50 !important;
+        color: #ecf0f1 !important;
+    }
+    
+    .vis-time-axis .vis-text {
+        color: #bdc3c7 !important;
+    }
+}
+
+/* 侧边面板 */
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.transactions-panel,
+.constraints-panel {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    flex: 1;
+}
+
+.transactions-panel h3,
+.constraints-panel h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+}
+
+/* 事务列表样式 */
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #3498db;
+}
+
+.transaction-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.transaction-time {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.transaction-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.transaction-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background: #f39c12;
+    color: white;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+/* 约束列表样式 */
+.constraint-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #e67e22;
+}
+
+.constraint-description {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.constraint-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.constraint-status.valid {
+    color: #27ae60;
+}
+
+.constraint-status.invalid {
+    color: #e74c3c;
+}
+
+.constraint-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto 1fr;
+    }
+    
+    .side-panel {
+        grid-column: 1;
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .time-range-controls {
+        flex-wrap: wrap;
+    }
+    
+    .side-panel {
+        flex-direction: column;
+    }
+}
+
+/* 约束指示器 */
+.constraint-indicator {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid #e67e22;
+    z-index: 100;
+}
+
+.constraint-indicator.invalid {
+    border-top-color: #e74c3c;
+}
+
+/* 连接线样式 */
+.constraint-line {
+    position: absolute;
+    height: 2px;
+    background: #e67e22;
+    z-index: 50;
+    opacity: 0.7;
+}
+
+.constraint-line.invalid {
+    background: #e74c3c;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* 工具提示 */
+.tooltip {
+    position: absolute;
+    background: #2c3e50;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.tooltip.show {
+    opacity: 1;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #2c3e50;
+}
+
+/* 保留原有的快速菜单样式作为备用 */
+
+/* 改进的模态框样式 */
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* vis-timeline 交互增强 */
+.vis-panel.vis-center:hover {
+    background: #f8f9fa !important;
+}
+
+/* 选择框样式 */
+.vis-panel.vis-top .vis-axis {
+    border-bottom: 2px solid #3498db !important;
+}
+
+/* 缩放控制样式优化 */
+.timeline-controls {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-top: 2px solid #e9ecef;
+}
+
+/* 响应式时间轴 */
+@media (max-width: 768px) {
+    .timeline-container {
+        margin: 5px;
+    }
+    
+    .timeline-controls {
+        padding: 8px 15px;
+        flex-wrap: wrap;
+    }
+    
+    .timeline-info {
+        margin-left: 0;
+        margin-top: 5px;
+        flex-basis: 100%;
+    }
+    
+    .vis-item .vis-item-content {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .transaction-block {
+        min-width: 80px;
+        font-size: 10px;
+    }
+    
+    .drag-handle {
+        width: 16px;
+        height: 25px;
+        font-size: 12px;
+    }
+    
+    .quick-menu {
+        min-width: 120px;
+    }
+    
+    .color-options {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .color-option {
+        width: 35px;
+        height: 35px;
+    }
+}

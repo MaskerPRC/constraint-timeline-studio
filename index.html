@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间区块调整工具</title>
+    
+    <!-- vis-timeline CSS -->
+    <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>时间区块调整工具</h1>
+            <p class="subtitle">自动时间区块调整获取完整测试边界条件</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <button id="add-transaction" class="btn btn-primary">添加事务</button>
+                <button id="add-constraint" class="btn btn-secondary">添加约束</button>
+                <button id="reset" class="btn btn-danger">重置</button>
+            </div>
+            
+            <div class="time-range-controls">
+                <label for="start-time">时间轴起始时间:</label>
+                <input type="datetime-local" id="start-time" value="2024-01-01T09:00">
+                
+                <label for="end-time">时间轴结束时间:</label>
+                <input type="datetime-local" id="end-time" value="2024-01-01T18:00">
+                
+                <label for="time-scale">时间刻度:</label>
+                <select id="time-scale">
+                    <option value="15">15分钟</option>
+                    <option value="30" selected>30分钟</option>
+                    <option value="60">1小时</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="timeline-wrapper">
+                <div id="visualization" class="timeline-container"></div>
+                <div class="timeline-controls">
+                    <button id="fit-timeline" class="btn btn-sm">适应窗口</button>
+                    <button id="zoom-in" class="btn btn-sm">放大</button>
+                    <button id="zoom-out" class="btn btn-sm">缩小</button>
+                    <span class="timeline-info">拖拽调整时间 | 双击编辑 | 右键菜单</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="transactions-panel">
+                <h3>事务列表</h3>
+                <div id="transactions-list" class="transactions-list">
+                    <!-- 事务列表将在这里显示 -->
+                </div>
+            </div>
+
+            <div class="constraints-panel">
+                <h3>约束条件</h3>
+                <div id="constraints-list" class="constraints-list">
+                    <!-- 约束列表将在这里显示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加事务模态框 -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加/编辑事务</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="transaction-name">事务名称:</label>
+                        <input type="text" id="transaction-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transaction-color">颜色:</label>
+                        <input type="color" id="transaction-color" name="color" value="#4CAF50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transaction-start">开始时间:</label>
+                        <input type="datetime-local" id="transaction-start" name="startTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transaction-end">结束时间:</label>
+                        <input type="datetime-local" id="transaction-end" name="endTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transaction-duration">固定时长(分钟):</label>
+                        <input type="number" id="transaction-duration" name="duration" min="1" placeholder="留空表示不固定时长">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加约束模态框 -->
+    <div id="constraint-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加/编辑约束条件</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="constraint-form">
+                    <div class="form-group">
+                        <label for="constraint-type">约束类型:</label>
+                        <select id="constraint-type" name="type" required>
+                            <option value="">请选择约束类型</option>
+                            <optgroup label="时间顺序关系">
+                                <option value="start-after-end">A必须在B结束后开始</option>
+                                <option value="start-before-start">A必须在B开始前开始</option>
+                                <option value="start-before-end">A必须在B结束前开始</option>
+                                <option value="end-before-start">A必须在B开始前结束</option>
+                            </optgroup>
+                            <optgroup label="时间偏移关系">
+                                <option value="start-offset">A必须在B开始后X分钟开始</option>
+                                <option value="start-exact">A必须在B开始后精确X分钟开始</option>
+                            </optgroup>
+                            <optgroup label="时间长度限制">
+                                <option value="fixed-duration">A必须持续固定X分钟</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="constraint-transaction-a">事务A:</label>
+                        <select id="constraint-transaction-a" name="transactionA" required>
+                            <option value="">请选择事务</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="transaction-b-group">
+                        <label for="constraint-transaction-b">事务B:</label>
+                        <select id="constraint-transaction-b" name="transactionB">
+                            <option value="">请选择事务</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="offset-group" style="display: none;">
+                        <label for="constraint-offset">时间偏移(分钟):</label>
+                        <input type="number" id="constraint-offset" name="offset" min="0">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- vis-timeline JavaScript -->
+    <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    
+    <!-- 主脚本 -->
+    <script src="script.js"></script>
+</body>
+</html>
