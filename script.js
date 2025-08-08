@@ -1498,5 +1498,32 @@ class TimeRangeControlAdvanced {
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', () => {
+    // 主题初始化与切换
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('trc-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+        root.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        root.setAttribute('data-theme', 'dark');
+    }
+
+    const toggleBtn = document.getElementById('theme-toggle');
+    const syncToggleIcon = () => {
+        if (!toggleBtn) return;
+        const current = root.getAttribute('data-theme') || 'light';
+        toggleBtn.textContent = current === 'dark' ? '☀️' : '🌙';
+        toggleBtn.title = current === 'dark' ? '切换到浅色' : '切换到深色';
+    };
+    syncToggleIcon();
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', current);
+            localStorage.setItem('trc-theme', current);
+            syncToggleIcon();
+        });
+    }
+
+    // 初始化应用
     new TimeRangeControlAdvanced();
 });

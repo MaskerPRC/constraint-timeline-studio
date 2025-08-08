@@ -4,25 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>时间区块调整工具</title>
+    <meta name="color-scheme" content="light dark">
     
     <!-- 网站图标 -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="shortcut icon" type="image/png" href="logo.png">
     
+    <!-- 字体（中英混排更美观） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
     <!-- vis-timeline CSS -->
     <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
     
     <!-- 自定义样式 -->
-    <link rel="stylesheet" href="styles.css?v=1.1">
+    <link rel="stylesheet" href="styles.css?v=1.2">
 </head>
 <body>
     <div class="container">
         <header class="header">
             <div class="header-content">
-                <img src="logo.png" alt="Logo" class="logo">
-                <div class="header-text">
-                    <h1>时间区块调整工具</h1>
-                    <p class="subtitle">自动时间区块调整获取完整测试边界条件</p>
+                <div class="header-brand">
+                    <img src="logo.png" alt="Logo" class="logo">
+                    <div class="header-text">
+                        <h1>时间区块调整工具</h1>
+                        <p class="subtitle">自动时间区块调整获取完整测试边界条件</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="btn btn-ghost" aria-label="切换主题">🌙</button>
                 </div>
             </div>
         </header>
