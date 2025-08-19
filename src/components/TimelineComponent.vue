@@ -52,9 +52,7 @@ export default {
     const initTimeline = () => {
       if (!timelineContainer.value) return
 
-      console.log('📊 初始化vis-timeline组件...')
-      
-      console.log('✅ 开始初始化vis-timeline数据集')
+
       
       // 初始化数据集
       visItems.value = new DataSet()
@@ -126,18 +124,14 @@ export default {
       setupTimelineEvents()
       
       emit('timeline-ready', timeline.value)
-      console.log('✅ vis-timeline组件初始化完成')
     }
 
     const setupTimelineEvents = () => {
       if (!timeline.value) return
 
-      console.log('🔗 设置时间轴事件监听...')
-
       // 使用高频率的changed事件来模拟实时约束 - 参考原始代码
       timeline.value.on('changed', (properties) => {
         if (properties && properties.items && Array.isArray(properties.items) && properties.items.length > 0) {
-          console.log('📝 时间轴项目变化:', properties.items)
           // 先快速应用实时约束
           emit('item-changed', properties.items)
           
@@ -153,14 +147,11 @@ export default {
       visItems.value.on('update', (event, properties) => {
         // 当vis-timeline数据更新时，同步回Vue数据并触发约束检查
         if (properties && properties.items && Array.isArray(properties.items) && properties.items.length > 0) {
-          console.log('📊 vis-timeline数据更新:', properties.items)
-          
           // 同步vis-timeline的数据变化回Vue
           syncVisDataToVue()
           
           clearTimeout(constraintTimeout.value)
           constraintTimeout.value = setTimeout(() => {
-            console.log('⚡ 数据更新触发约束检查:', properties.items)
             emit('item-changed', properties.items)
           }, 10) // 10毫秒延迟，确保实时响应
         }
@@ -196,10 +187,8 @@ export default {
 
       // 选择变化
       timeline.value.on('select', (properties) => {
-        console.log('🎯 选择变化:', properties.items)
+        // 选择变化处理
       })
-
-      console.log('✅ 时间轴事件监听设置完成')
     }
 
     const fitTimeline = () => {
@@ -257,8 +246,6 @@ export default {
     // 监听数据变化 - 同步Vue数据到vis-timeline
     watch(() => props.items, (newItems, oldItems) => {
       if (visItems.value) {
-        console.log('🔄 同步items数据到vis-timeline:', newItems.length)
-        
         // 更新vis-timeline数据，保持响应式
         const visData = newItems.map(item => ({
           ...item,
@@ -280,7 +267,6 @@ export default {
 
     watch(() => props.groups, (newGroups) => {
       if (visGroups.value) {
-        console.log('🔄 同步groups数据到vis-timeline:', newGroups.length)
         visGroups.value.clear()
         visGroups.value.add(newGroups)
       }

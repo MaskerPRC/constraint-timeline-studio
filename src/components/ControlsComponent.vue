@@ -69,15 +69,12 @@ export default {
       return `${year}-${month}-${day}T${hours}:${minutes}`
     },
     handleAddTransaction() {
-      console.log('🔵 点击添加事务按钮')
       this.$emit('add-transaction')
     },
     handleAddConstraint() {
-      console.log('🔵 点击添加约束按钮')
       this.$emit('add-constraint')
     },
     handleReset() {
-      console.log('🔵 点击重置按钮')
       this.$emit('reset')
     },
     handleTimeRangeChange() {
@@ -85,7 +82,6 @@ export default {
       const endInput = this.$refs.endTime
       const scaleInput = this.$refs.timeScale
       
-      console.log('🔵 时间范围变更')
       this.$emit('time-range-change', {
         start: new Date(startInput.value),
         end: new Date(endInput.value),

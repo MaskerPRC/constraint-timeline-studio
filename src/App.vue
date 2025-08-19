@@ -49,10 +49,7 @@
     @cancel="hideTransactionModal"
   />
   
-  <!-- 调试信息 -->
-  <div v-if="showTransactionModalFlag" style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 5px; z-index: 9999;">
-    模态框应该显示
-  </div>
+
 
   <!-- 添加约束模态框 -->
   <ConstraintModal
@@ -152,12 +149,10 @@ export default {
 
     // 初始化
     onMounted(() => {
-      console.log('🚀 Vue应用初始化开始...')
       initializeTheme()
       initializeTimeRange()
       createSampleData()
       startRealtimeConstraintMonitoring()
-      console.log('✅ Vue应用初始化完成')
     })
 
     onBeforeUnmount(() => {
@@ -194,7 +189,6 @@ export default {
 
     // 创建示例数据
     const createSampleData = () => {
-      console.log('🚀 创建复杂软件开发项目案例 - 5个事务复杂约束网络')
       
       // 创建5个时间轴
       groups.value = [
@@ -253,7 +247,6 @@ export default {
       ]
 
       // 创建约束关系网络
-      console.log('⚙️ 设置复杂约束关系...')
 
       // 固定时长约束
       createConstraint({
@@ -337,9 +330,6 @@ export default {
         description: '🧪 测试验收必须在后端开发完成后开始'
       })
 
-      console.log('✅ 复杂约束网络创建完成！共计11个约束关系')
-      console.log('🎮 现在您可以拖拽任意任务，观察整个项目网络的实时调整！')
-
       // 初始化项目状态记录
       updateItemStates()
     }
@@ -388,13 +378,11 @@ export default {
 
     // 实时约束监控
     const startRealtimeConstraintMonitoring = () => {
-      console.log('🔄 启动实时约束监控系统...')
       constraintMonitoringInterval.value = setInterval(() => {
         if (constraintSystem.isProcessing) return
         
         const changedItems = detectItemChanges()
         if (changedItems.length > 0) {
-          console.log(`🔍 检测到项目变化: ${changedItems.join(', ')}`)
           processConstraintsRealtime(changedItems)
         }
       }, 50) // 50毫秒检查，确保实时性
@@ -404,7 +392,6 @@ export default {
       if (constraintMonitoringInterval.value) {
         clearInterval(constraintMonitoringInterval.value)
         constraintMonitoringInterval.value = null
-        console.log('⏹️ 停止实时约束监控系统')
       }
     }
 
@@ -442,8 +429,6 @@ export default {
 
     // 约束处理
     const processConstraints = (changedItems) => {
-      console.log('🔧 开始处理约束，变更项目:', changedItems)
-      
       // 创建items的深拷贝用于约束处理，避免直接修改响应式数据
       const itemsCopy = items.value.map(item => ({
         ...item,
@@ -460,7 +445,6 @@ export default {
           // 检查是否有时间变化
           if (originalItem.start.getTime() !== processedItem.start.getTime() ||
               originalItem.end.getTime() !== processedItem.end.getTime()) {
-            console.log(`🔄 同步约束处理结果: ${originalItem.content}`)
             originalItem.start = processedItem.start
             originalItem.end = processedItem.end
           }
@@ -474,8 +458,6 @@ export default {
           constraint.isValid = isValid
         }
       })
-      
-      console.log('✅ 约束处理完成')
     }
 
     const processConstraintsRealtime = (changedItems) => {
@@ -483,7 +465,6 @@ export default {
       
       clearTimeout(constraintTimeout.value)
       constraintTimeout.value = setTimeout(() => {
-        console.log('⚡ 实时约束处理:', changedItems)
         constraintSystem.processConstraintsRealtime(items.value, constraints.value, changedItems)
         
         // 更新约束状态
@@ -499,25 +480,19 @@ export default {
 
     // 事件处理
     const handleItemChanged = (changedItemIds) => {
-      console.log('📝 项目变化事件:', changedItemIds)
       processConstraints(changedItemIds)
       updateItemStates()
     }
 
     const showTransactionModal = (itemId = null, time = null) => {
-      console.log('🔵 显示事务模态框，参数:', { itemId, time })
       if (itemId) {
         editingTransaction.value = items.value.find(item => item.id === itemId)
-        console.log('📝 编辑事务:', editingTransaction.value)
       } else if (time) {
         editingTransaction.value = null
-        console.log('⏰ 在指定时间创建事务:', time)
       } else {
         editingTransaction.value = null
-        console.log('➕ 创建新事务')
       }
       showTransactionModalFlag.value = true
-      console.log('✅ 事务模态框状态设为true')
     }
 
     const hideTransactionModal = () => {
@@ -548,17 +523,13 @@ export default {
     }
 
     const showConstraintModal = (constraintId = null, preselectedItemId = null) => {
-      console.log('🔵 显示约束模态框，参数:', { constraintId, preselectedItemId })
       if (constraintId) {
         editingConstraint.value = constraints.value.get(constraintId)
-        console.log('📝 编辑约束:', editingConstraint.value)
       } else {
         editingConstraint.value = null
         preselectedItem.value = preselectedItemId
-        console.log('➕ 创建新约束，预选事务:', preselectedItemId)
       }
       showConstraintModalFlag.value = true
-      console.log('✅ 约束模态框状态设为true')
     }
 
     const hideConstraintModal = () => {
@@ -733,7 +704,6 @@ export default {
       timeline.on('select', (properties) => {
         selectedItems.value = properties.items
       })
-      console.log('📊 时间轴组件已准备就绪')
     }
 
     return {

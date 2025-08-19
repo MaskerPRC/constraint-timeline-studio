@@ -9,7 +9,7 @@ export default class ConstraintSystem {
         if (this.isProcessing) return new Map();
         this.isProcessing = true;
 
-        console.log('🔧 开始约束处理，迭代求解...');
+
         let iteration = 0;
         let hasChanges = true;
 
@@ -32,13 +32,7 @@ export default class ConstraintSystem {
             });
 
             sortedConstraints.forEach(constraint => {
-                const beforeState = this.getConstraintState(constraint, items);
                 if (this.applyConstraint(constraint, items)) {
-                    const afterState = this.getConstraintState(constraint, items);
-                    console.log(`约束处理 [${iteration}]: ${constraint.description}`, {
-                        before: beforeState,
-                        after: afterState
-                    });
                     hasChanges = true;
                 }
             });
@@ -48,8 +42,6 @@ export default class ConstraintSystem {
         
         if (iteration >= this.maxIterations) {
             console.warn('约束求解达到最大迭代次数，可能存在约束冲突');
-        } else {
-            console.log(`✅ 约束求解完成，共进行 ${iteration} 次迭代`);
         }
         
         return this.validateConstraints(constraints, items);
@@ -60,7 +52,7 @@ export default class ConstraintSystem {
         if (this.isProcessing) return;
         this.isProcessing = true;
 
-        console.log('⚡ 开始实时约束处理，变更项目:', changedItemIds);
+
 
         // 实时处理只做少量迭代，保证响应速度
         let iteration = 0;
@@ -78,7 +70,7 @@ export default class ConstraintSystem {
                 );
             });
 
-            console.log(`实时约束处理 [${iteration}]: 找到 ${relevantConstraints.length} 个相关约束`);
+
 
             // 按优先级排序
             relevantConstraints.sort((a, b) => {
@@ -96,14 +88,12 @@ export default class ConstraintSystem {
 
             relevantConstraints.forEach(constraint => {
                 if (this.applyConstraintRealtime(constraint, items)) {
-                    console.log(`✅ 实时约束生效: ${constraint.description}`);
                     hasChanges = true;
                 }
             });
         }
 
         this.isProcessing = false;
-        console.log('⚡ 实时约束处理完成');
     }
 
     applyConstraint(constraint, items) {
@@ -273,8 +263,6 @@ export default class ConstraintSystem {
         
         itemA.start = newStart;
         itemA.end = newEnd;
-        
-        console.log(`实时约束调整: ${itemA.content} 结束时间调整为 ${newEnd.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`);
         return true;
     }
 
@@ -287,8 +275,6 @@ export default class ConstraintSystem {
         
         itemA.start = newStart;
         itemA.end = newEnd;
-        
-        console.log(`实时约束调整: ${itemA.content} 开始时间调整为 ${newStart.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`);
         return true;
     }
 
