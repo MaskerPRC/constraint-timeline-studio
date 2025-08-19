@@ -12,6 +12,7 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { Timeline, DataSet } from 'vis-timeline/standalone'
 
 export default {
   name: 'TimelineComponent',
@@ -48,8 +49,8 @@ export default {
       if (!timelineContainer.value) return
 
       // 初始化数据集
-      visItems.value = new vis.DataSet()
-      visGroups.value = new vis.DataSet()
+      visItems.value = new DataSet()
+      visGroups.value = new DataSet()
       
       // 添加数据
       if (props.items.length > 0) {
@@ -98,7 +99,7 @@ export default {
       }
 
       // 创建时间轴
-      timeline.value = new vis.Timeline(timelineContainer.value, visItems.value, visGroups.value, options)
+      timeline.value = new Timeline(timelineContainer.value, visItems.value, visGroups.value, options)
 
       // 设置初始时间范围
       if (props.timeRange.start && props.timeRange.end) {
