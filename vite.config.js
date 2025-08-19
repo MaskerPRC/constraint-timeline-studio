@@ -44,6 +44,9 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['vue', 'vis-timeline']
+    include: ['vue', 'vis-timeline/standalone']
+  },
+  define: {
+    global: 'globalThis'
   }
 })

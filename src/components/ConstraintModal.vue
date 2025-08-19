@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" @click.self="$emit('cancel')">
+  <div class="modal" style="display: block; z-index: 10000;" @click.self="$emit('cancel')">
     <div class="modal-content">
       <div class="modal-header">
         <h3>{{ constraint ? '编辑约束条件' : '添加约束条件' }}</h3>
@@ -115,21 +115,30 @@ export default {
       const data = {
         id: props.constraint ? props.constraint.id : 'constraint_' + Date.now(),
         type: formData.type,
-        transactionA: formData.transactionA,
-        transactionB: formData.transactionB,
+        itemA: formData.transactionA,
+        itemB: formData.transactionB,
         offset: formData.offset
       }
       emit('save', data)
     }
 
     onMounted(() => {
+      console.log('🔵 ConstraintModal组件已挂载')
+      console.log('📝 接收到的constraint props:', props.constraint)
+      console.log('📝 接收到的preselectedItem:', props.preselectedItem)
+      console.log('📝 可用的items:', props.items.length)
+      
       if (props.constraint) {
         formData.type = props.constraint.type
         formData.transactionA = props.constraint.itemA
         formData.transactionB = props.constraint.itemB || ''
         formData.offset = props.constraint.offset || 0
+        console.log('📝 编辑模式，表单数据:', formData)
       } else if (props.preselectedItem) {
         formData.transactionA = props.preselectedItem
+        console.log('📝 预选模式，表单数据:', formData)
+      } else {
+        console.log('➕ 新建模式，表单数据:', formData)
       }
     })
 

@@ -3,6 +3,8 @@ import App from './App.vue'
 
 // 导入全局样式
 import './styles.css'
+// 导入vis-timeline样式
+import 'vis-timeline/styles/vis-timeline-graph2d.css'
 
 // 添加启动日志
 console.log('🚀 开始初始化 Vue 应用...')

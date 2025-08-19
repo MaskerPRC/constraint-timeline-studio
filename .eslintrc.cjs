@@ -18,7 +18,8 @@ module.exports = {
     node: true
   },
   globals: {
-    vis: 'readonly'
+    vis: 'readonly',
+    window: 'readonly'
   },
   rules: {
     // Vue相关规则

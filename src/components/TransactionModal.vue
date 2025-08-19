@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" @click.self="$emit('cancel')">
+  <div class="modal" style="display: block; z-index: 10000;" @click.self="$emit('cancel')">
     <div class="modal-content">
       <div class="modal-header">
         <h3>{{ transaction ? '编辑事务' : '添加事务' }}</h3>
@@ -91,15 +91,20 @@ export default {
     }
 
     onMounted(() => {
+      console.log('🔵 TransactionModal组件已挂载')
+      console.log('📝 接收到的transaction props:', props.transaction)
+      
       if (props.transaction) {
         formData.name = props.transaction.content
         formData.color = extractBackgroundColor(props.transaction.style)
         formData.startTime = formatDateTimeLocal(props.transaction.start)
         formData.endTime = formatDateTimeLocal(props.transaction.end)
+        console.log('📝 编辑模式，表单数据:', formData)
       } else {
         const now = new Date()
         formData.startTime = formatDateTimeLocal(now)
         formData.endTime = formatDateTimeLocal(new Date(now.getTime() + 60 * 60 * 1000))
+        console.log('➕ 新建模式，表单数据:', formData)
       }
     })
 

@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "debug": "node debug-start.js",
     "build": "vite build",
     "preview": "vite preview",
     "serve": "vite preview --port 4173",

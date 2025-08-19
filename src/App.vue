@@ -48,6 +48,11 @@
     @save="saveTransaction"
     @cancel="hideTransactionModal"
   />
+  
+  <!-- 调试信息 -->
+  <div v-if="showTransactionModalFlag" style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 5px; z-index: 9999;">
+    模态框应该显示
+  </div>
 
   <!-- 添加约束模态框 -->
   <ConstraintModal
@@ -79,7 +84,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import ControlsComponent from '@/components/ControlsComponent.vue'
 import TimelineComponent from '@/components/TimelineComponent.vue'
@@ -136,15 +141,27 @@ export default {
       itemId: null
     })
 
-    // 约束系统
+    // 约束系统和时间轴引用
     const constraintSystem = new ConstraintSystem()
     const timelineRef = ref(null)
+    
+    // 约束监控相关
+    const constraintMonitoringInterval = ref(null)
+    const lastItemStates = ref(new Map())
+    const constraintTimeout = ref(null)
 
     // 初始化
     onMounted(() => {
+      console.log('🚀 Vue应用初始化开始...')
       initializeTheme()
       initializeTimeRange()
       createSampleData()
+      startRealtimeConstraintMonitoring()
+      console.log('✅ Vue应用初始化完成')
+    })
+
+    onBeforeUnmount(() => {
+      stopRealtimeConstraintMonitoring()
     })
 
     // 主题管理
@@ -235,27 +252,96 @@ export default {
         }
       ]
 
-      // 创建约束关系
+      // 创建约束关系网络
+      console.log('⚙️ 设置复杂约束关系...')
+
+      // 固定时长约束
       createConstraint({
-        id: 'constraint_1',
         type: 'fixed-duration',
         itemA: 'task_analysis',
         offset: 120,
-        description: '📋 需求分析必须耗时2小时',
-        isValid: true
+        description: '📋 需求分析必须耗时2小时'
       })
 
       createConstraint({
-        id: 'constraint_2',
-        type: 'start-offset',
+        type: 'fixed-duration',
         itemA: 'task_design',
-        itemB: 'task_analysis',
-        offset: 15,
-        description: '🏗️ 系统设计必须在需求分析完成15分钟后开始',
-        isValid: true
+        offset: 90,
+        description: '🏗️ 系统设计必须耗时1.5小时'
       })
 
-      console.log('✅ 复杂约束网络创建完成！')
+      createConstraint({
+        type: 'fixed-duration',
+        itemA: 'task_frontend',
+        offset: 180,
+        description: '🎨 前端开发必须耗时3小时'
+      })
+
+      createConstraint({
+        type: 'fixed-duration',
+        itemA: 'task_backend',
+        offset: 240,
+        description: '⚙️ 后端开发必须耗时4小时'
+      })
+
+      createConstraint({
+        type: 'fixed-duration',
+        itemA: 'task_testing',
+        offset: 120,
+        description: '🧪 测试验收必须耗时2小时'
+      })
+
+      // 顺序依赖约束
+      createConstraint({
+        type: 'start-after-end',
+        itemA: 'task_design',
+        itemB: 'task_analysis',
+        description: '🏗️ 系统设计必须在需求分析完成后开始'
+      })
+
+      createConstraint({
+        type: 'start-offset',
+        itemA: 'task_frontend',
+        itemB: 'task_design',
+        offset: 30,
+        description: '🎨 前端开发必须在系统设计开始30分钟后开始'
+      })
+
+      createConstraint({
+        type: 'start-after-end',
+        itemA: 'task_backend',
+        itemB: 'task_design',
+        description: '⚙️ 后端开发必须在系统设计完成后开始'
+      })
+
+      // 并行开发约束
+      createConstraint({
+        type: 'start-before-end',
+        itemA: 'task_frontend',
+        itemB: 'task_backend',
+        description: '🎨 前端开发必须在后端开发完成前开始（并行开发）'
+      })
+
+      // 最终集成约束
+      createConstraint({
+        type: 'start-after-end',
+        itemA: 'task_testing',
+        itemB: 'task_frontend',
+        description: '🧪 测试验收必须在前端开发完成后开始'
+      })
+
+      createConstraint({
+        type: 'start-after-end',
+        itemA: 'task_testing',
+        itemB: 'task_backend',
+        description: '🧪 测试验收必须在后端开发完成后开始'
+      })
+
+      console.log('✅ 复杂约束网络创建完成！共计11个约束关系')
+      console.log('🎮 现在您可以拖拽任意任务，观察整个项目网络的实时调整！')
+
+      // 初始化项目状态记录
+      updateItemStates()
     }
 
     // 约束管理
@@ -300,10 +386,86 @@ export default {
       }
     }
 
-    // 事件处理
-    const handleItemChanged = (changedItemIds) => {
-      // 处理约束
-      const validationResults = constraintSystem.processConstraints(items.value, constraints.value, changedItemIds)
+    // 实时约束监控
+    const startRealtimeConstraintMonitoring = () => {
+      console.log('🔄 启动实时约束监控系统...')
+      constraintMonitoringInterval.value = setInterval(() => {
+        if (constraintSystem.isProcessing) return
+        
+        const changedItems = detectItemChanges()
+        if (changedItems.length > 0) {
+          console.log(`🔍 检测到项目变化: ${changedItems.join(', ')}`)
+          processConstraintsRealtime(changedItems)
+        }
+      }, 50) // 50毫秒检查，确保实时性
+    }
+
+    const stopRealtimeConstraintMonitoring = () => {
+      if (constraintMonitoringInterval.value) {
+        clearInterval(constraintMonitoringInterval.value)
+        constraintMonitoringInterval.value = null
+        console.log('⏹️ 停止实时约束监控系统')
+      }
+    }
+
+    const detectItemChanges = () => {
+      const changedItems = []
+      
+      items.value.forEach(item => {
+        const lastState = lastItemStates.value.get(item.id)
+        const currentState = {
+          start: item.start.getTime(),
+          end: item.end.getTime()
+        }
+        
+        if (!lastState || 
+            lastState.start !== currentState.start || 
+            lastState.end !== currentState.end) {
+          changedItems.push(item.id)
+          lastItemStates.value.set(item.id, currentState)
+        }
+      })
+      
+      return changedItems
+    }
+
+    const updateItemStates = () => {
+      items.value.forEach(item => {
+        if (item && item.id && item.start && item.end) {
+          lastItemStates.value.set(item.id, {
+            start: item.start.getTime(),
+            end: item.end.getTime()
+          })
+        }
+      })
+    }
+
+    // 约束处理
+    const processConstraints = (changedItems) => {
+      console.log('🔧 开始处理约束，变更项目:', changedItems)
+      
+      // 创建items的深拷贝用于约束处理，避免直接修改响应式数据
+      const itemsCopy = items.value.map(item => ({
+        ...item,
+        start: new Date(item.start),
+        end: new Date(item.end)
+      }))
+      
+      const validationResults = constraintSystem.processConstraints(itemsCopy, constraints.value, changedItems)
+      
+      // 将约束处理后的数据同步回Vue响应式数据
+      itemsCopy.forEach(processedItem => {
+        const originalItem = items.value.find(item => item.id === processedItem.id)
+        if (originalItem) {
+          // 检查是否有时间变化
+          if (originalItem.start.getTime() !== processedItem.start.getTime() ||
+              originalItem.end.getTime() !== processedItem.end.getTime()) {
+            console.log(`🔄 同步约束处理结果: ${originalItem.content}`)
+            originalItem.start = processedItem.start
+            originalItem.end = processedItem.end
+          }
+        }
+      })
       
       // 更新约束验证状态
       validationResults.forEach((isValid, constraintId) => {
@@ -312,18 +474,50 @@ export default {
           constraint.isValid = isValid
         }
       })
+      
+      console.log('✅ 约束处理完成')
+    }
+
+    const processConstraintsRealtime = (changedItems) => {
+      if (constraintSystem.isProcessing) return
+      
+      clearTimeout(constraintTimeout.value)
+      constraintTimeout.value = setTimeout(() => {
+        console.log('⚡ 实时约束处理:', changedItems)
+        constraintSystem.processConstraintsRealtime(items.value, constraints.value, changedItems)
+        
+        // 更新约束状态
+        const validationResults = constraintSystem.validateConstraints(constraints.value, items.value)
+        validationResults.forEach((isValid, constraintId) => {
+          const constraint = constraints.value.get(constraintId)
+          if (constraint) {
+            constraint.isValid = isValid
+          }
+        })
+      }, 10)
+    }
+
+    // 事件处理
+    const handleItemChanged = (changedItemIds) => {
+      console.log('📝 项目变化事件:', changedItemIds)
+      processConstraints(changedItemIds)
+      updateItemStates()
     }
 
     const showTransactionModal = (itemId = null, time = null) => {
+      console.log('🔵 显示事务模态框，参数:', { itemId, time })
       if (itemId) {
         editingTransaction.value = items.value.find(item => item.id === itemId)
+        console.log('📝 编辑事务:', editingTransaction.value)
       } else if (time) {
         editingTransaction.value = null
-        // 可以在这里设置默认时间
+        console.log('⏰ 在指定时间创建事务:', time)
       } else {
         editingTransaction.value = null
+        console.log('➕ 创建新事务')
       }
       showTransactionModalFlag.value = true
+      console.log('✅ 事务模态框状态设为true')
     }
 
     const hideTransactionModal = () => {
@@ -354,13 +548,17 @@ export default {
     }
 
     const showConstraintModal = (constraintId = null, preselectedItemId = null) => {
+      console.log('🔵 显示约束模态框，参数:', { constraintId, preselectedItemId })
       if (constraintId) {
         editingConstraint.value = constraints.value.get(constraintId)
+        console.log('📝 编辑约束:', editingConstraint.value)
       } else {
         editingConstraint.value = null
         preselectedItem.value = preselectedItemId
+        console.log('➕ 创建新约束，预选事务:', preselectedItemId)
       }
       showConstraintModalFlag.value = true
+      console.log('✅ 约束模态框状态设为true')
     }
 
     const hideConstraintModal = () => {
@@ -428,6 +626,7 @@ export default {
         items.value = []
         groups.value = []
         constraints.value.clear()
+        lastItemStates.value.clear()
       }
     }
 
@@ -534,6 +733,7 @@ export default {
       timeline.on('select', (properties) => {
         selectedItems.value = properties.items
       })
+      console.log('📊 时间轴组件已准备就绪')
     }
 
     return {

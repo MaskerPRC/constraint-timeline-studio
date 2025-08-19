@@ -1,4 +1,4 @@
-// 约束系统类
+// 约束系统类 - 修复版本，参考原始代码实现
 export default class ConstraintSystem {
     constructor() {
         this.isProcessing = false;
@@ -6,9 +6,10 @@ export default class ConstraintSystem {
     }
 
     processConstraints(items, constraints, changedItemIds = []) {
-        if (this.isProcessing) return;
+        if (this.isProcessing) return new Map();
         this.isProcessing = true;
 
+        console.log('🔧 开始约束处理，迭代求解...');
         let iteration = 0;
         let hasChanges = true;
 
@@ -16,7 +17,7 @@ export default class ConstraintSystem {
             hasChanges = false;
             iteration++;
 
-            // 按约束优先级处理
+            // 按约束优先级处理：先处理固定时长，再处理时间关系
             const sortedConstraints = Array.from(constraints.values()).sort((a, b) => {
                 const priority = {
                     'fixed-duration': 1,
@@ -31,7 +32,13 @@ export default class ConstraintSystem {
             });
 
             sortedConstraints.forEach(constraint => {
+                const beforeState = this.getConstraintState(constraint, items);
                 if (this.applyConstraint(constraint, items)) {
+                    const afterState = this.getConstraintState(constraint, items);
+                    console.log(`约束处理 [${iteration}]: ${constraint.description}`, {
+                        before: beforeState,
+                        after: afterState
+                    });
                     hasChanges = true;
                 }
             });
@@ -41,9 +48,62 @@ export default class ConstraintSystem {
         
         if (iteration >= this.maxIterations) {
             console.warn('约束求解达到最大迭代次数，可能存在约束冲突');
+        } else {
+            console.log(`✅ 约束求解完成，共进行 ${iteration} 次迭代`);
         }
         
         return this.validateConstraints(constraints, items);
+    }
+
+    // 实时约束处理 - 拖拽过程中调用
+    processConstraintsRealtime(items, constraints, changedItemIds = []) {
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+
+        console.log('⚡ 开始实时约束处理，变更项目:', changedItemIds);
+
+        // 实时处理只做少量迭代，保证响应速度
+        let iteration = 0;
+        let hasChanges = true;
+        const maxRealtimeIterations = 3;
+
+        while (hasChanges && iteration < maxRealtimeIterations) {
+            hasChanges = false;
+            iteration++;
+
+            // 只处理与变更项目相关的约束
+            const relevantConstraints = Array.from(constraints.values()).filter(constraint => {
+                return changedItemIds.some(itemId => 
+                    constraint.itemA === itemId || constraint.itemB === itemId
+                );
+            });
+
+            console.log(`实时约束处理 [${iteration}]: 找到 ${relevantConstraints.length} 个相关约束`);
+
+            // 按优先级排序
+            relevantConstraints.sort((a, b) => {
+                const priority = {
+                    'fixed-duration': 1,
+                    'end-before-start': 2,
+                    'start-after-end': 2,
+                    'start-before-start': 3,
+                    'start-before-end': 3,
+                    'start-offset': 4,
+                    'start-exact': 4
+                };
+                return (priority[a.type] || 5) - (priority[b.type] || 5);
+            });
+
+            relevantConstraints.forEach(constraint => {
+                if (this.applyConstraintRealtime(constraint, items)) {
+                    console.log(`✅ 实时约束生效: ${constraint.description}`);
+                    hasChanges = true;
+                }
+            });
+        }
+
+        this.isProcessing = false;
+        console.log('⚡ 实时约束处理完成');
     }
 
     applyConstraint(constraint, items) {
@@ -52,6 +112,20 @@ export default class ConstraintSystem {
         
         if (!itemA) return false;
         
+        // 检查itemA的日期对象有效性
+        if (!itemA.start || !itemA.end || !(itemA.start instanceof Date) || !(itemA.end instanceof Date)) {
+            console.warn('ItemA has invalid date objects:', itemA);
+            return false;
+        }
+        
+        // 如果需要itemB，也检查它的日期对象有效性
+        if (constraint.type !== 'fixed-duration' && itemB) {
+            if (!itemB.start || !itemB.end || !(itemB.start instanceof Date) || !(itemB.end instanceof Date)) {
+                console.warn('ItemB has invalid date objects:', itemB);
+                return false;
+            }
+        }
+
         switch (constraint.type) {
             case 'fixed-duration':
                 return this.enforceFixedDuration(itemA, constraint.offset);
@@ -72,10 +146,39 @@ export default class ConstraintSystem {
         }
     }
 
+    // 实时约束应用 - 优化版本，更快响应
+    applyConstraintRealtime(constraint, items) {
+        const itemA = items.find(item => item.id === constraint.itemA);
+        const itemB = items.find(item => item.id === constraint.itemB);
+        
+        if (!itemA) return false;
+
+        switch (constraint.type) {
+            case 'fixed-duration':
+                return this.enforceFixedDurationRealtime(itemA, constraint.offset);
+            case 'end-before-start':
+                return this.enforceEndBeforeStartRealtime(itemA, itemB);
+            case 'start-after-end':
+                return this.enforceStartAfterEndRealtime(itemA, itemB);
+            case 'start-before-start':
+                return this.enforceStartBeforeStartRealtime(itemA, itemB);
+            case 'start-before-end':
+                return this.enforceStartBeforeEndRealtime(itemA, itemB);
+            case 'start-offset':
+                return this.enforceStartOffsetRealtime(itemA, itemB, constraint.offset);
+            case 'start-exact':
+                return this.enforceStartExactRealtime(itemA, itemB, constraint.offset);
+            default:
+                return false;
+        }
+    }
+
+    // 约束执行方法
     enforceFixedDuration(item, duration) {
         const currentDuration = (item.end - item.start) / (1000 * 60);
         if (Math.abs(currentDuration - duration) > 1) {
-            item.end = new Date(item.start.getTime() + duration * 60 * 1000);
+            const newEnd = new Date(item.start.getTime() + duration * 60 * 1000);
+            item.end = newEnd;
             return true;
         }
         return false;
@@ -85,8 +188,11 @@ export default class ConstraintSystem {
         if (!itemB || itemA.start >= itemB.end) return false;
         
         const duration = itemA.end - itemA.start;
-        itemA.start = new Date(itemB.end.getTime());
-        itemA.end = new Date(itemA.start.getTime() + duration);
+        const newStart = new Date(itemB.end.getTime());
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
         return true;
     }
 
@@ -94,8 +200,11 @@ export default class ConstraintSystem {
         if (!itemB || itemA.start <= itemB.start) return false;
         
         const duration = itemA.end - itemA.start;
-        itemA.start = new Date(itemB.start.getTime() - 60000);
-        itemA.end = new Date(itemA.start.getTime() + duration);
+        const newStart = new Date(itemB.start.getTime() - 60000);
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
         return true;
     }
 
@@ -103,17 +212,25 @@ export default class ConstraintSystem {
         if (!itemB || itemA.start <= itemB.end) return false;
         
         const duration = itemA.end - itemA.start;
-        itemA.start = new Date(itemB.end.getTime() - 60000);
-        itemA.end = new Date(itemA.start.getTime() + duration);
+        const newStart = new Date(itemB.end.getTime() - 60000);
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
         return true;
     }
 
     enforceEndBeforeStart(itemA, itemB) {
         if (!itemB || itemA.end <= itemB.start) return false;
         
+        // 约束：itemA.end <= itemB.start
+        // 如果违反了约束，调整itemA的结束时间，保持itemA的时长
         const duration = itemA.end - itemA.start;
-        itemA.end = new Date(itemB.start.getTime() - 60000);
-        itemA.start = new Date(itemA.end.getTime() - duration);
+        const newEnd = new Date(itemB.start.getTime() - 60000); // 提前1分钟确保满足约束
+        const newStart = new Date(newEnd.getTime() - duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
         return true;
     }
 
@@ -123,8 +240,10 @@ export default class ConstraintSystem {
         const targetStart = new Date(itemB.start.getTime() + offset * 60 * 1000);
         if (Math.abs(itemA.start - targetStart) > 60000) {
             const duration = itemA.end - itemA.start;
+            const newEnd = new Date(targetStart.getTime() + duration);
+            
             itemA.start = targetStart;
-            itemA.end = new Date(targetStart.getTime() + duration);
+            itemA.end = newEnd;
             return true;
         }
         return false;
@@ -132,6 +251,88 @@ export default class ConstraintSystem {
 
     enforceStartExact(itemA, itemB, offset) {
         return this.enforceStartOffset(itemA, itemB, offset);
+    }
+
+    // 实时约束执行方法 - 针对性能优化
+    enforceFixedDurationRealtime(item, duration) {
+        const currentDuration = (item.end - item.start) / (1000 * 60);
+        if (Math.abs(currentDuration - duration) > 1) {
+            const newEnd = new Date(item.start.getTime() + duration * 60 * 1000);
+            item.end = newEnd;
+            return true;
+        }
+        return false;
+    }
+
+    enforceEndBeforeStartRealtime(itemA, itemB) {
+        if (!itemB || itemA.end <= itemB.start) return false;
+        
+        const duration = itemA.end - itemA.start;
+        const newEnd = new Date(itemB.start.getTime() - 60000);
+        const newStart = new Date(newEnd.getTime() - duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
+        
+        console.log(`实时约束调整: ${itemA.content} 结束时间调整为 ${newEnd.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`);
+        return true;
+    }
+
+    enforceStartAfterEndRealtime(itemA, itemB) {
+        if (!itemB || itemA.start >= itemB.end) return false;
+        
+        const duration = itemA.end - itemA.start;
+        const newStart = new Date(itemB.end.getTime() + 60000);
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
+        
+        console.log(`实时约束调整: ${itemA.content} 开始时间调整为 ${newStart.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`);
+        return true;
+    }
+
+    enforceStartBeforeStartRealtime(itemA, itemB) {
+        if (!itemB || itemA.start <= itemB.start) return false;
+        
+        const duration = itemA.end - itemA.start;
+        const newStart = new Date(itemB.start.getTime() - 60000);
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
+        return true;
+    }
+
+    enforceStartBeforeEndRealtime(itemA, itemB) {
+        if (!itemB || itemA.start <= itemB.end) return false;
+        
+        const duration = itemA.end - itemA.start;
+        const newStart = new Date(itemB.end.getTime() - 60000);
+        const newEnd = new Date(newStart.getTime() + duration);
+        
+        itemA.start = newStart;
+        itemA.end = newEnd;
+        return true;
+    }
+
+    enforceStartOffsetRealtime(itemA, itemB, offset) {
+        if (!itemB) return false;
+        
+        const targetStart = new Date(itemB.start.getTime() + offset * 60 * 1000);
+        if (Math.abs(itemA.start - targetStart) > 60000) {
+            const duration = itemA.end - itemA.start;
+            const newEnd = new Date(targetStart.getTime() + duration);
+            
+            itemA.start = targetStart;
+            itemA.end = newEnd;
+            return true;
+        }
+        return false;
+    }
+
+    enforceStartExactRealtime(itemA, itemB, offset) {
+        return this.enforceStartOffsetRealtime(itemA, itemB, offset);
     }
 
     validateConstraints(constraints, items) {
@@ -173,5 +374,36 @@ export default class ConstraintSystem {
             default:
                 return true;
         }
+    }
+
+    getConstraintState(constraint, items) {
+        const itemA = items.find(item => item.id === constraint.itemA);
+        const itemB = items.find(item => item.id === constraint.itemB);
+        
+        if (!itemA) return null;
+        
+        // 辅助函数：安全地格式化时间
+        const formatTime = (dateObj) => {
+            if (!dateObj || !(dateObj instanceof Date)) {
+                return 'Invalid Date';
+            }
+            return dateObj.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        };
+        
+        const state = {
+            itemA: {
+                start: formatTime(itemA.start),
+                end: formatTime(itemA.end)
+            }
+        };
+        
+        if (itemB) {
+            state.itemB = {
+                start: formatTime(itemB.start),
+                end: formatTime(itemB.end)
+            };
+        }
+        
+        return state;
     }
 }

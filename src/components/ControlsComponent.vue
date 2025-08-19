@@ -1,9 +1,9 @@
 <template>
   <div class="controls">
     <div class="control-group">
-      <button class="btn btn-primary" @click="$emit('add-transaction')">添加事务</button>
-      <button class="btn btn-secondary" @click="$emit('add-constraint')">添加约束</button>
-      <button class="btn btn-danger" @click="$emit('reset')">重置</button>
+      <button class="btn btn-primary" @click="handleAddTransaction">添加事务</button>
+      <button class="btn btn-secondary" @click="handleAddConstraint">添加约束</button>
+      <button class="btn btn-danger" @click="handleReset">重置</button>
     </div>
     
     <div class="time-range-controls">
@@ -68,11 +68,24 @@ export default {
       const minutes = String(date.getMinutes()).padStart(2, '0')
       return `${year}-${month}-${day}T${hours}:${minutes}`
     },
+    handleAddTransaction() {
+      console.log('🔵 点击添加事务按钮')
+      this.$emit('add-transaction')
+    },
+    handleAddConstraint() {
+      console.log('🔵 点击添加约束按钮')
+      this.$emit('add-constraint')
+    },
+    handleReset() {
+      console.log('🔵 点击重置按钮')
+      this.$emit('reset')
+    },
     handleTimeRangeChange() {
       const startInput = this.$refs.startTime
       const endInput = this.$refs.endTime
       const scaleInput = this.$refs.timeScale
       
+      console.log('🔵 时间范围变更')
       this.$emit('time-range-change', {
         start: new Date(startInput.value),
         end: new Date(endInput.value),
