@@ -28,7 +28,7 @@ export default {
   emits: ['color-selected', 'close'],
   data() {
     return {
-      colors: ['#3498db', '#e74c3c', '#f39c12', '#2ecc71', '#9b59b6', '#1abc9c', '#34495e', '#e67e22']
+      colors: ['#e5613a', '#ffffff', '#333333', '#666666', '#999999', '#cccccc', '#000000', '#d54f28']
     }
   },
   methods: {

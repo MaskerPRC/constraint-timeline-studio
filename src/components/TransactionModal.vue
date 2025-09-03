@@ -57,16 +57,16 @@ export default {
   setup(props, { emit }) {
     const formData = reactive({
       name: '',
-      color: '#4CAF50',
+      color: '#e5613a',
       startTime: '',
       endTime: '',
       duration: ''
     })
 
     const extractBackgroundColor = (style) => {
-      if (!style) return '#4CAF50'
+      if (!style) return '#e5613a'
       const match = style.match(/background[^:]*:\s*([^;]+)/)
-      return match ? match[1].trim() : '#4CAF50'
+      return match ? match[1].trim() : '#e5613a'
     }
 
     const formatDateTimeLocal = (date) => {

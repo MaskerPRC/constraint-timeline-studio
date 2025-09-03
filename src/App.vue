@@ -210,7 +210,7 @@ export default {
           start: projectStart,
           end: new Date(projectStart.getTime() + 2 * 60 * 60 * 1000), // 2小时
           group: 1,
-          style: 'background: linear-gradient(45deg, #E91E63, #C2185B); color: white; border-radius: 8px; border: 2px solid #AD1457; font-weight: bold;'
+          style: 'background: linear-gradient(45deg, #e5613a, #d54f28); color: white; border-radius: 8px; border: 2px solid #333333; font-weight: bold;'
         },
         {
           id: 'task_design',
@@ -218,7 +218,7 @@ export default {
           start: new Date(projectStart.getTime() + 2.25 * 60 * 60 * 1000), // 11:15
           end: new Date(projectStart.getTime() + 3.75 * 60 * 60 * 1000), // 12:45 (1.5小时)
           group: 2,
-          style: 'background: linear-gradient(45deg, #3F51B5, #303F9F); color: white; border-radius: 8px; border: 2px solid #1A237E; font-weight: bold;'
+          style: 'background: linear-gradient(45deg, #666666, #333333); color: white; border-radius: 8px; border: 2px solid #000000; font-weight: bold;'
         },
         {
           id: 'task_frontend',
@@ -226,7 +226,7 @@ export default {
           start: new Date(projectStart.getTime() + 2.75 * 60 * 60 * 1000), // 11:45
           end: new Date(projectStart.getTime() + 5.75 * 60 * 60 * 1000), // 14:45 (3小时)
           group: 3,
-          style: 'background: linear-gradient(45deg, #4CAF50, #388E3C); color: white; border-radius: 8px; border: 2px solid #1B5E20; font-weight: bold;'
+          style: 'background: linear-gradient(45deg, #999999, #666666); color: white; border-radius: 8px; border: 2px solid #333333; font-weight: bold;'
         },
         {
           id: 'task_backend',
@@ -234,7 +234,7 @@ export default {
           start: new Date(projectStart.getTime() + 3.75 * 60 * 60 * 1000), // 12:45
           end: new Date(projectStart.getTime() + 7.75 * 60 * 60 * 1000), // 16:45 (4小时)
           group: 4,
-          style: 'background: linear-gradient(45deg, #FF9800, #F57C00); color: white; border-radius: 8px; border: 2px solid #E65100; font-weight: bold;'
+          style: 'background: linear-gradient(45deg, #cccccc, #999999); color: #333333; border-radius: 8px; border: 2px solid #666666; font-weight: bold;'
         },
         {
           id: 'task_testing',
@@ -242,7 +242,7 @@ export default {
           start: new Date(projectStart.getTime() + 7.75 * 60 * 60 * 1000), // 16:45
           end: new Date(projectStart.getTime() + 9.75 * 60 * 60 * 1000), // 18:45 (2小时)
           group: 5,
-          style: 'background: linear-gradient(45deg, #9C27B0, #7B1FA2); color: white; border-radius: 8px; border: 2px solid #4A148C; font-weight: bold;'
+          style: 'background: linear-gradient(45deg, #ffffff, #cccccc); color: #333333; border-radius: 8px; border: 2px solid #999999; font-weight: bold;'
         }
       ]
 

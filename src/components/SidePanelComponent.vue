@@ -78,9 +78,9 @@ export default {
       return Math.round((item.end - item.start) / (1000 * 60))
     },
     extractBackgroundColor(style) {
-      if (!style) return '#3498db'
+      if (!style) return '#e5613a'
       const match = style.match(/background[^:]*:\s*([^;]+)/)
-      return match ? match[1].trim() : '#3498db'
+      return match ? match[1].trim() : '#e5613a'
     },
     isItemSelected(itemId) {
       return this.selectedItems.includes(itemId)
